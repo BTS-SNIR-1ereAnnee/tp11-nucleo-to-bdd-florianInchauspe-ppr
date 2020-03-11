@@ -5,6 +5,10 @@
 #include <termios.h>	// 
 #include <errno.h>
 #include <iostream>
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
 
 /* baudrate settings are defined in <asm/termbits.h>, which is included by <termios.h> */
 #define BAUDRATE B115200            
@@ -31,7 +35,7 @@ int main()
 	  return(-1);
 	}
     bzero(&newtio, sizeof(newtio)); /* clear struct for new port settings */
- /* 
+        /* 
           BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
           CRTSCTS : output hardware flow control (only used if the cable has
                     all necessary lines. See sect. 7 of Serial-HOWTO)
@@ -97,6 +101,53 @@ int main()
  
   /* Ne pas oublier de libérer ton file descriptor */
   close(sfd);
+  
+  try {
+  // Les variables nécessaires à notre programme
+  sql::Driver* driver;
+  sql::Connection* con;
+  sql::Statement* stmt;
+  sql::ResultSet* res;
+ 
+  // Etape 1 : créer une connexion à la BDD
+  driver = get_driver_instance();
+  // on note les paramètres classiques: adresse ip du serveur et port, login, mot de passe
+  con = driver->connect("localhost", "bts", "snir");
+ 
+  // Etape 2 : connexion à la base choisie, ici olivier_db
+  con->setSchema("capteurs");
+ 
+  // Etape 3 : création d'un objet qui permet d'effectuer des requêtes sur la base
+  stmt = con->createStatement();
+ 
+  // Etape 4 : exécution d'une requete : ici on sélectionne tous les enregistrements
+  // de la table Animal
+  res = stmt->executeQuery("SELECT * FROM relever");
+  
+  // Etape 5 : exploitation du résultat de la requête
+  while (res->next()) {
+    std::cout << "\t... MySQL a repondu: ";
+    // Acces par non du champ de la table : ici le champ 'id' que l'on recupère au format string
+    std::cout << res->getString("id") << std::endl;
+    std::cout << "\t... MySQL la suite : ";
+    // Acces à la donnée par son numéro de colonne, 1 étant le premier (ici 'id'), 5 le nom de l'animal
+    std::cout << res->getString(5) << std::endl;
+  }
+ 
+  // On nettoie tout avant de sortir : effacement des pointeurs
+  // le pointeur sur le Driver sera effacé tout seul
+  delete res;
+  delete stmt;
+  delete con;
+ 
+} catch (sql::SQLException &e) {
+  // Gestion des execeptions pour déboggage
+  std::cout << "# ERR: " << e.what();
+  std::cout << " (code erreur MySQL: " << e.getErrorCode();
+  std::cout << ", EtatSQL: " << e.getSQLState() << " )" << std::endl;
+}
+ 
+  std::cout << std::endl;
  
   return 0;
 }
