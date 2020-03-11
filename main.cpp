@@ -9,6 +9,7 @@
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <bits/stdc++.h>
 
 /* baudrate settings are defined in <asm/termbits.h>, which is included by <termios.h> */
 #define BAUDRATE B115200            
@@ -19,6 +20,7 @@
 #define FALSE 0
 #define TRUE 1
 
+using namespace std; 
 volatile int STOP=FALSE; 
 int main()
 {
@@ -26,6 +28,13 @@ int main()
     struct termios newtio;
     char buf[255];
     ssize_t size;
+    string varTemp ;
+
+    // Vector of string to save tokens 
+    vector <string> tokens;      
+    // stringstream class check1 
+    stringstream check1(buf);   
+    string intermediate; 
 	
 	sfd = open(MODEMDEVICE, O_RDONLY | O_NOCTTY ); 
 	if (sfd == -1)
@@ -94,6 +103,14 @@ int main()
 	  ** il existe des FD speciaux :
 	  ** Le fd 1 est la sortie standart ( console )
 	  */
+	    while(getline(check1, intermediate, ' ')) 
+    { 
+        tokens.push_back(intermediate); 
+    } 
+      
+    // Printing the token vector 
+    for(int i = 0; i < tokens.size(); i++) 
+        cout << tokens[i] << '\n'; 
  
 	  //write (1, buf, size);
 	  std::cout << i << " " << buf << "\n";
@@ -122,7 +139,7 @@ int main()
  
   // Etape 4 : exécution d'une requete : ici on sélectionne tous les enregistrements
   // de la table Animal
-  res = stmt->executeQuery("SELECT * FROM relever");
+  res = stmt->executeQuery("INSERT INTO relever (horodatage , acceleration , mag_x , mag_y , mag_z ) VALUES ('2' , '2' , '2' , '3' ,'3'");
   
   // Etape 5 : exploitation du résultat de la requête
   while (res->next()) {
@@ -148,6 +165,7 @@ int main()
 }
  
   std::cout << std::endl;
- 
+  
+
   return 0;
 }
