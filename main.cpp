@@ -129,17 +129,17 @@ int main()
   // Etape 1 : créer une connexion à la BDD
   driver = get_driver_instance();
   // on note les paramètres classiques: adresse ip du serveur et port, login, mot de passe
-  con = driver->connect("localhost", "bts", "snir");
+  con = driver->connect("localhost", "root", "Hangover0");
  
   // Etape 2 : connexion à la base choisie, ici olivier_db
-  con->setSchema("capteurs");
+  con->setSchema("mesure");
  
   // Etape 3 : création d'un objet qui permet d'effectuer des requêtes sur la base
   stmt = con->createStatement();
  
   // Etape 4 : exécution d'une requete : ici on sélectionne tous les enregistrements
   // de la table Animal
-  res = stmt->executeQuery("INSERT INTO relever (horodatage , acceleration , mag_x , mag_y , mag_z ) VALUES ('2' , '2' , '2' , '3' ,'3'");
+  res = stmt->executeQuery("INSERT INTO TPNucleoMesures ( acceleration , mag_x , mag_y , mag_z ) VALUES ('2' , '2' , '3' ,'3');");
   
   // Etape 5 : exploitation du résultat de la requête
   while (res->next()) {
